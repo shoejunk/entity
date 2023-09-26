@@ -1,10 +1,9 @@
-import stk.tpl;
+import stk.entity;
 
-using namespace NStk::NTemplate;
+using namespace stk::entity;
 
 int main()
 {
-	CTemplate oTemplate;
-	oTemplate.Template();
-	return 0;
+    node entity;
+    return 0;
 }

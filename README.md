@@ -1,4 +1,4 @@
-# template
+# entity
 Generate project files by running:
 - "generate.bat"
 
