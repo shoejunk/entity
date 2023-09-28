@@ -25,11 +25,11 @@ include(${CPM_DOWNLOAD_LOCATION})
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
 
-# Add package: shoejunk/ds
+# Add package: shoejunk/hash
 CPMAddPackage(
-	NAME ds
-	GITHUB_REPOSITORY shoejunk/ds
-	VERSION 2.0.0
+	NAME hash
+	GITHUB_REPOSITORY shoejunk/hash
+	VERSION 4.0.0
 )
 
 # ---- Add source files ----
@@ -50,7 +50,7 @@ target_include_directories(
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
-target_link_libraries(${PROJECT_NAME} ds)
+target_link_libraries(${PROJECT_NAME} hash)
 
 # the location where the project's version header will be placed should match the project's regular
 # header paths

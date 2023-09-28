@@ -16,6 +16,13 @@ CPMAddPackage(
 
 CPMAddPackage(NAME entity SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 
+# Add package: shoejunk/log
+CPMAddPackage(
+	NAME log
+	GITHUB_REPOSITORY shoejunk/log
+	VERSION 0.5.0
+)
+
 # ---- Create standalone executable ----
 file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
 
@@ -23,4 +30,4 @@ add_executable(${PROJECT_NAME} ${sources})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23 OUTPUT_NAME "entity")
 
-target_link_libraries(${PROJECT_NAME} entity cxxopts)
+target_link_libraries(${PROJECT_NAME} entity Log cxxopts)
