@@ -15,9 +15,9 @@ export namespace stk::entity
 	{
 	public:
 		template<class T>
-		void add_aspect(T&& aspect)
+		void add_aspect(T* aspect)
 		{
-			m_aspects[hash_of<T>()] = std::forward<T>(aspect);
+			m_aspects[hash_of<T>()] = aspect;
 		}
 
 		template<class T>
@@ -26,7 +26,7 @@ export namespace stk::entity
 			auto it = m_aspects.find(hash_of<T>());
 			if (it != m_aspects.end())
 			{
-				return std::any_cast<T>(&it->second);
+				return std::any_cast<T*>(it->second);
 			}
 			return nullptr;
 		}
