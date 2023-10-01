@@ -47,6 +47,14 @@ public:
 
 class foo_node : public node
 {
+public:
+	bool attach(node& parent)
+	{
+		parent.add_aspect<bar>(&m_foo);
+		parent.add_aspect<baz>(&m_foo);
+		return true;
+	}
+
 private:
 	foo m_foo;
 };
@@ -54,9 +62,12 @@ private:
 int main()
 {
     node entity;
-	foo f;
-	entity.add_aspect<bar>(&f);
-	entity.add_aspect<baz>(&f);
+	foo_node* child = entity.make_child<foo_node>();
+	if (child != nullptr)
+	{
+		debugln("child created");
+	}
+
 	bar* bar_p = entity.get_aspect<bar>();
 	if (bar_p != nullptr)
 	{
@@ -68,8 +79,6 @@ int main()
 	{
 		baz_p->go_baz();
 	}
-
-	foo_node* fn = entity.make_child<foo_node>();
 
     return 0;
 }

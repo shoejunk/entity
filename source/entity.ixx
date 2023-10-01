@@ -1,10 +1,6 @@
 export module stk.entity;
 
-#pragma warning(push)
-#pragma warning(disable: 5050) // _M_FP_PRECISE is defined in current command line and not in module command line
 import std.core;
-#pragma warning(pop)
-
 import stk.hash;
 import stk.log;
 
@@ -13,7 +9,10 @@ using namespace stk;
 export namespace stk
 {
 	template<class T, class U>
-	concept Derived = std::is_base_of_v<U, T>;
+	concept can_attach = requires(T t, U u)
+	{
+		{ t.attach(u) } -> std::same_as<bool>;
+	};
 
 	class node
 	{
@@ -45,12 +44,38 @@ export namespace stk
 			return nullptr;
 		}
 
-		template<Derived<node> T, typename... Args>
+		template<class T, typename... Args>
+		requires std::is_base_of_v<node, T> && can_attach<T, node>
 		T* make_child(Args&&... args)
 		{
-			auto child = std::make_unique<T>(std::forward<Args>(args)...);
-			auto& inserted = m_children.emplace_back(std::move(child));
-			return static_cast<T*>(inserted.get());
+			try
+			{
+				auto child = std::make_unique<T>(std::forward<Args>(args)...);
+				auto& inserted = m_children.emplace_back(std::move(child));
+				T* derived = static_cast<T*>(inserted.get());
+				if (!derived->attach(*this))
+				{
+					m_children.pop_back();
+					return nullptr;
+				}
+				return derived;
+			}
+			catch (const std::bad_alloc& e)
+			{
+				// Handle std::bad_alloc (thrown by std::make_unique or emplace_back if allocation fails)
+				errorln("Memory allocation failed: {}", e.what());
+			}
+			catch (const std::exception& e)
+			{
+				// Handle other standard exceptions
+				errorln("Exception: {}", e.what());
+			}
+			catch (...)
+			{
+				// Catch-all handler: catch any other exceptions not previously caught
+				errorln("Unknown exception caught");
+			}
+			return nullptr;
 		}
 
 	private:

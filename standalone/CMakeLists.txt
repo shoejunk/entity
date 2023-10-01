@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.14...3.22)
 
 project(entity_standalone LANGUAGES CXX)
 
+# Disable warning: _M_FP_PRECISE is defined in current command line and not in module command line.
+# This warning is caused by importing std.core and I can't for the life of me figure out a way to fix it.
+# Also somehow just wrapping the import in a #pragma warning(disable: 5050) doesn't work.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd5050")
+
 # --- Import tools ----
 include(../cmake/tools.cmake)
 

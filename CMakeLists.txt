@@ -36,7 +36,7 @@ CPMAddPackage(
 CPMAddPackage(
 	NAME log
 	GITHUB_REPOSITORY shoejunk/log
-	VERSION 1.0.0
+	VERSION 1.1.0
 )
 
 # ---- Add source files ----
