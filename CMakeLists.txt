@@ -29,11 +29,18 @@ CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.8.0")
 CPMAddPackage(
 	NAME hash
 	GITHUB_REPOSITORY shoejunk/hash
-	VERSION 4.0.0
+	VERSION 5.0.0
+)
+
+# Add package: shoejunk/log
+CPMAddPackage(
+	NAME log
+	GITHUB_REPOSITORY shoejunk/log
+	VERSION 1.0.0
 )
 
 # ---- Add source files ----
-file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cppm")
+file(GLOB_RECURSE sources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.ixx")
 
 # ---- Create library ----
 
@@ -50,7 +57,7 @@ target_include_directories(
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
-target_link_libraries(${PROJECT_NAME} hash)
+target_link_libraries(${PROJECT_NAME} hash log)
 
 # the location where the project's version header will be placed should match the project's regular
 # header paths

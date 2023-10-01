@@ -1,39 +1,58 @@
 import stk.entity;
 import stk.log;
+import stk.hash;
 
-using namespace stk::entity;
-using namespace NStk::NLog;
+using namespace stk;
+
+// bar interface
+class bar
+{
+public:
+	virtual void go_bar() = 0;
+};
+
+template<>
+constexpr hash stk::hash_of<bar>()
+{
+	return "bar"_h;
+}
+
+// baz interface
+class baz
+{
+public:
+	virtual void go_baz() = 0;
+};
+
+template<>
+constexpr hash stk::hash_of<baz>()
+{
+	return "baz"_h;
+}
+
+// Foo implements both bar and baz
+class foo : public bar, public baz
+{
+public:
+	void go_bar() override
+	{
+		debugln("go bar!");
+	}
+
+	void go_baz() override
+	{
+		debugln("go baz!");
+	}
+};
+
+class foo_node : public node
+{
+private:
+	foo m_foo;
+};
 
 int main()
 {
-	// bar interface
-	class bar
-	{
-	public:
-		virtual void go_bar() = 0;
-	};
-
-	// baz interface
-	class baz
-	{
-	public:
-		virtual void go_baz() = 0;
-	};
-
-	// Foo implements both bar and baz
-	class foo : public bar, public baz
-	{
-	public:
-		void go_bar() override
-		{
-			Log("go bar!\n");
-		}
-
-		void go_baz() override
-		{
-			Log("go baz!\n");
-		}
-	};
     node entity;
 	foo f;
 	entity.add_aspect<bar>(&f);
@@ -49,6 +68,8 @@ int main()
 	{
 		baz_p->go_baz();
 	}
+
+	foo_node* fn = entity.make_child<foo_node>();
 
     return 0;
 }

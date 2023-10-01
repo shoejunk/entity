@@ -6,14 +6,28 @@ import std.core;
 #pragma warning(pop)
 
 import stk.hash;
+import stk.log;
 
-using namespace stk::hash_ns;
+using namespace stk;
 
-export namespace stk::entity
+export namespace stk
 {
+	template<class T, class U>
+	concept Derived = std::is_base_of_v<U, T>;
+
 	class node
 	{
 	public:
+		node()
+		{
+			debugln("node created");
+		}
+
+		~node()
+		{
+			debugln("node destroyed");
+		}
+
 		template<class T>
 		void add_aspect(T* aspect)
 		{
@@ -31,7 +45,16 @@ export namespace stk::entity
 			return nullptr;
 		}
 
+		template<Derived<node> T, typename... Args>
+		T* make_child(Args&&... args)
+		{
+			auto child = std::make_unique<T>(std::forward<Args>(args)...);
+			auto& inserted = m_children.emplace_back(std::move(child));
+			return static_cast<T*>(inserted.get());
+		}
+
 	private:
 		std::unordered_map<hash, std::any, hash_hasher> m_aspects;
+		std::vector<std::unique_ptr<node>> m_children;
 	};
 }

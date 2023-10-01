@@ -20,7 +20,7 @@ CPMAddPackage(NAME entity SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
 CPMAddPackage(
 	NAME log
 	GITHUB_REPOSITORY shoejunk/log
-	VERSION 0.5.0
+	VERSION 1.0.0
 )
 
 # ---- Create standalone executable ----
@@ -30,4 +30,4 @@ add_executable(${PROJECT_NAME} ${sources})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 23 OUTPUT_NAME "entity")
 
-target_link_libraries(${PROJECT_NAME} entity Log cxxopts)
+target_link_libraries(${PROJECT_NAME} entity log cxxopts)
