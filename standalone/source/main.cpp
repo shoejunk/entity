@@ -45,25 +45,93 @@ public:
 	}
 };
 
+class just_baz : public baz
+{
+public:
+	void go_baz() override
+	{
+		debugln("just baz!");
+	}
+};
+
 class foo_node : public node
 {
 public:
 	bool attach(node& parent)
 	{
-		parent.add_aspect<bar>(&m_foo);
-		parent.add_aspect<baz>(&m_foo);
+		if (!parent.add_aspect<bar>(&m_foo))
+		{
+			return false;
+		}
+
+		if (!parent.add_aspect<baz>(&m_foo))
+		{
+			parent.remove_aspect<bar>();
+			return false;
+		}
+
 		return true;
+	}
+
+	void detach(node& parent)
+	{
+		parent.remove_aspect<bar>();
+		parent.remove_aspect<baz>();
 	}
 
 private:
 	foo m_foo;
 };
 
+class just_baz_node : public node
+{
+public:
+	bool attach(node& parent)
+	{
+		if (!parent.add_aspect<baz>(&m_just_baz))
+		{
+			return false;
+		}
+
+		parent.add_handler("dance"_h, this, [this]() { this->dance(); });
+
+		return true;
+	}
+
+	void detach(node& parent)
+	{
+		parent.remove_aspect<baz>();
+		parent.remove_handler("dance"_h, *this);
+	}
+
+	void dance()
+	{
+		debugln("just baz dance!");
+	}
+
+private:
+	just_baz m_just_baz;
+};
+
 int main()
 {
     node entity;
+	just_baz_node* child2 = entity.make_child<just_baz_node>();
+	if (child2 == nullptr)
+	{
+		debugln("child2 not created");
+	}
+	else
+	{
+		debugln("child2 created");
+	}
+
 	foo_node* child = entity.make_child<foo_node>();
-	if (child != nullptr)
+	if (child == nullptr)
+	{
+		debugln("child not created");
+	}
+	else
 	{
 		debugln("child created");
 	}
@@ -79,6 +147,17 @@ int main()
 	{
 		baz_p->go_baz();
 	}
+
+	entity.send("dance"_h);
+
+	entity.remove_child(child2);
+	baz_p = entity.get_aspect<baz>();
+	if (baz_p != nullptr)
+	{
+		baz_p->go_baz();
+	}
+
+	entity.send("dance"_h);
 
     return 0;
 }

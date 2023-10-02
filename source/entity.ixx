@@ -3,6 +3,7 @@ export module stk.entity;
 import std.core;
 import stk.hash;
 import stk.log;
+import <cassert>;
 
 using namespace stk;
 
@@ -17,20 +18,21 @@ export namespace stk
 	class node
 	{
 	public:
-		node()
+		template<class T>
+		bool add_aspect(T* aspect)
 		{
-			debugln("node created");
-		}
-
-		~node()
-		{
-			debugln("node destroyed");
+			if (m_aspects.find(hash_of<T>()) == m_aspects.end())
+			{
+				m_aspects[hash_of<T>()] = aspect;
+				return true;
+			}
+			return false;
 		}
 
 		template<class T>
-		void add_aspect(T* aspect)
+		void remove_aspect()
 		{
-			m_aspects[hash_of<T>()] = aspect;
+			m_aspects.erase(hash_of<T>());
 		}
 
 		template<class T>
@@ -78,8 +80,58 @@ export namespace stk
 			return nullptr;
 		}
 
+		template<class T>
+		void remove_child(T* child)
+		{
+			assert(child != nullptr);
+			child->detach(*this);
+			for (auto it = m_children.begin(); it != m_children.end(); ++it)
+			{
+				if (it->get() == child)
+				{
+					m_children.erase(it);
+					break;
+				}
+			}
+		}
+
+		void add_handler(hash event, node* n, std::function<void()> handler)
+		{
+			assert(handler != nullptr);
+			m_handlers[event].push_back(std::pair<node*, std::function<void()>>(n, handler));
+		}
+
+		void remove_handler(hash event, node const& n)
+		{
+			auto it = m_handlers.find(event);
+			if (it != m_handlers.end())
+			{
+				for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+				{
+					if (it2->first == &n)
+					{
+						it->second.erase(it2);
+						return;
+					}
+				}
+			}
+		}
+
+		void send(hash event)
+		{
+			auto it = m_handlers.find(event);
+			if (it != m_handlers.end())
+			{
+				for (auto& node_handler : it->second)
+				{
+					node_handler.second();
+				}
+			}
+		}
+
 	private:
 		std::unordered_map<hash, std::any, hash_hasher> m_aspects;
+		std::unordered_map<hash, std::vector<std::pair<node*, std::function<void()>>>, hash_hasher> m_handlers;
 		std::vector<std::unique_ptr<node>> m_children;
 	};
 }
